@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 import dynamic from "next/dynamic";
 import "easymde/dist/easymde.min.css";
-import { TextField, Button } from "@radix-ui/themes";
+import { TextField, Button, Callout } from "@radix-ui/themes";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
@@ -19,26 +20,42 @@ interface IssueForm {
 const NewIssuePage = () => {
   const router = useRouter();
   const { register, control, handleSubmit } = useForm<IssueForm>();
+  const [error, setError] = useState("");
   // console.log(register("title"));
 
   return (
-    <form
-      className="max-w-xl space-y-3"
-      onSubmit={handleSubmit(async (data) => {
-        await axios.post("/api/issues", data);
-        router.push("/issues"); //redirect to issues page after submission
-      })}
-    >
-      <TextField.Root size="3" placeholder="Title" {...register("title")} />
-      <Controller
-        name="description"
-        control={control}
-        render={({ field }) => (
-          <SimpleMDE placeholder="Description…" {...field} />
-        )}
-      />
-      <Button type="submit">Submit A New Issue</Button>
-    </form>
+    <div className="max-w-xl">
+      {error && (
+        <Callout.Root color="red" className="mb-4">
+          <Callout.Icon>
+            <InfoCircledIcon />
+          </Callout.Icon>
+          <Callout.Text>{error}</Callout.Text>
+        </Callout.Root>
+      )}
+      <form
+        className="max-w-xl space-y-3"
+        onSubmit={handleSubmit(async (data) => {
+          try {
+            await axios.post("/api/issues", data);
+            router.push("/issues"); //redirect to issues page after submission
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          } catch (error) {
+            setError("An unexpected error occurred.");
+          }
+        })}
+      >
+        <TextField.Root size="3" placeholder="Title" {...register("title")} />
+        <Controller
+          name="description"
+          control={control}
+          render={({ field }) => (
+            <SimpleMDE placeholder="Description…" {...field} />
+          )}
+        />
+        <Button type="submit">Submit A New Issue</Button>
+      </form>
+    </div>
   );
 };
 
