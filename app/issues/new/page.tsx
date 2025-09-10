@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import issueSchema from "@/app/validationSchema";
 import { z } from "zod";
 import ErrorMessage from "@/app/component/ErrorMessage";
+import Spinner from "@/app/component/Spinner";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -35,6 +36,7 @@ const NewIssuePage = () => {
     resolver: zodResolver(issueSchema),
   });
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // console.log(register("title"));
 
   return (
@@ -51,10 +53,12 @@ const NewIssuePage = () => {
         className="max-w-xl space-y-3"
         onSubmit={handleSubmit(async (data) => {
           try {
+            setIsSubmitting(true);
             await axios.post("/api/issues", data);
             router.push("/issues"); //redirect to issues page after submission
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (error) {
+            setIsSubmitting(false);
             setError("An unexpected error occurred.");
           }
         })}
@@ -71,7 +75,9 @@ const NewIssuePage = () => {
 
         <ErrorMessage>{errors.description?.message}</ErrorMessage>
 
-        <Button type="submit">Submit A New Issue</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          Submit A New Issue {isSubmitting && <Spinner />}
+        </Button>
       </form>
     </div>
   );
