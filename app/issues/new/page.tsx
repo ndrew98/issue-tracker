@@ -4,12 +4,13 @@ import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 import dynamic from "next/dynamic";
 import "easymde/dist/easymde.min.css";
-import { TextField, Button, Callout, Text } from "@radix-ui/themes";
+import { TextField, Button, Callout } from "@radix-ui/themes";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import issueSchema from "@/app/validationSchema";
 import { z } from "zod";
+import ErrorMessage from "@/app/component/ErrorMessage";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -59,7 +60,7 @@ const NewIssuePage = () => {
         })}
       >
         <TextField.Root size="3" placeholder="Title" {...register("title")} />
-        {errors.title && <Text color="red">{errors.title.message}</Text>}
+        <ErrorMessage>{errors.title?.message}</ErrorMessage>
         <Controller
           name="description"
           control={control}
@@ -67,11 +68,9 @@ const NewIssuePage = () => {
             <SimpleMDE placeholder="Description…" {...field} />
           )}
         />
-        {errors.description && (
-          <Text color="red" as="p">
-            {errors.description.message}
-          </Text>
-        )}
+
+        <ErrorMessage>{errors.description?.message}</ErrorMessage>
+
         <Button type="submit">Submit A New Issue</Button>
       </form>
     </div>
