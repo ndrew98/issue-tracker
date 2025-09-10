@@ -1,15 +1,52 @@
 import React from "react";
 import { Button } from "@radix-ui/themes";
 import Link from "next/link";
+import prisma from "@/prisma/client";
+import { Table } from "@radix-ui/themes";
 
-const Issue = () => {
+const Issue = async () => {
+  const issues = await prisma.issue.findMany();
   return (
-    <div className="flex">
-      <h1>Issue Page</h1>
-      <Button>
-        <Link href="/issues/new">New Issue</Link>
-      </Button>
-    </div>
+    <>
+      <div className="max-w-4xl mt-4">
+        <div className="flex mb-5">
+          <Button>
+            <Link href="/issues/new">New Issue</Link>
+          </Button>
+        </div>
+
+        <h3>All Issues</h3>
+
+        <Table.Root variant="surface">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeaderCell>Issue</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="hidden md:table-cell">
+                Status
+              </Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell className="hidden md:table-cell">
+                Created Date
+              </Table.ColumnHeaderCell>
+            </Table.Row>
+          </Table.Header>
+
+          <Table.Body>
+            {issues.map((issue) => (
+              <Table.Row key={issue.id}>
+                <Table.RowHeaderCell>{issue.title}</Table.RowHeaderCell>
+                <Table.Cell className="hidden md:table-cell">
+                  {issue.status}
+                  <div className="block md:hidden">{issue.status}</div>
+                </Table.Cell>
+                <Table.Cell className="hidden md:table-cell">
+                  {issue.createdAt.toDateString()}
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
+      </div>
+    </>
   );
 };
 
